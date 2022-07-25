@@ -67,7 +67,6 @@ fn dump_command(args: &Vec<&str>) {
 }
 
 fn unquote(quoted: String) -> String {
-    println!("{}", quoted);
     let mut s = String::from(quoted);
     s.remove(0);
     s.remove(s.len() - 1);
