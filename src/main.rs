@@ -1,21 +1,28 @@
+use clap::Parser;
 use std::os::unix::process::CommandExt;
 use std::process;
 use std::process::{Command, Stdio};
 
 const KUBECTL: &str = "kubectl";
-// TODO: Handle given app name
-const APP: &str = "app";
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    app: String,
+}
 
 fn main() {
-    let ret = get_pod(APP.to_string());
+    let args = Args::parse();
+
+    let ret = get_pod(&args.app);
     if let Some(pod_name) = ret {
-        execute(pod_name)
+        execute(&args.app, pod_name)
     } else {
         process::exit(1)
     }
 }
 
-fn get_pod(app: String) -> Option<String> {
+fn get_pod(app: &String) -> Option<String> {
     let app_selector = format!("app={}", app);
     let args = vec![
         "get",
@@ -43,7 +50,7 @@ fn get_pod(app: String) -> Option<String> {
     }
 }
 
-fn execute(pod: String) {
+fn execute(app: &String, pod: String) {
     // TODO: Handle namespace
     // TODO: Handle given command
     let args = vec![
@@ -51,7 +58,7 @@ fn execute(pod: String) {
         &pod,
         "-it",
         "--container",
-        APP,
+        app,
         "--",
         "echo",
         "hello",
