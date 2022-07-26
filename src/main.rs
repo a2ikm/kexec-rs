@@ -14,16 +14,16 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let ret = get_pod(&args.app);
+    let ret = get_pod(&args);
     if let Some(pod_name) = ret {
-        execute(&args.app, pod_name)
+        execute(&args, pod_name)
     } else {
         process::exit(1)
     }
 }
 
-fn get_pod(app: &String) -> Option<String> {
-    let app_selector = format!("app={}", app);
+fn get_pod(args: &Args) -> Option<String> {
+    let app_selector = format!("app={}", args.app);
     let args = vec![
         "get",
         "pods",
@@ -50,7 +50,7 @@ fn get_pod(app: &String) -> Option<String> {
     }
 }
 
-fn execute(app: &String, pod: String) {
+fn execute(args: &Args, pod: String) {
     // TODO: Handle namespace
     // TODO: Handle given command
     let args = vec![
@@ -58,7 +58,7 @@ fn execute(app: &String, pod: String) {
         &pod,
         "-it",
         "--container",
-        app,
+        &args.app,
         "--",
         "echo",
         "hello",
