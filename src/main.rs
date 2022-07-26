@@ -24,7 +24,7 @@ fn main() {
 
 fn get_pod(args: &Args) -> Option<String> {
     let app_selector = format!("app={}", args.app);
-    let args = vec![
+    let kubectl_args = vec![
         "get",
         "pods",
         "-o",
@@ -33,9 +33,9 @@ fn get_pod(args: &Args) -> Option<String> {
         &app_selector,
     ];
 
-    dump_command(&args);
+    dump_command(&kubectl_args);
     let result = Command::new(KUBECTL)
-        .args(args)
+        .args(kubectl_args)
         .stderr(Stdio::inherit())
         .output();
 
@@ -53,7 +53,7 @@ fn get_pod(args: &Args) -> Option<String> {
 fn execute(args: &Args, pod: String) {
     // TODO: Handle namespace
     // TODO: Handle given command
-    let args = vec![
+    let kubectl_args = vec![
         "exec",
         &pod,
         "-it",
@@ -64,13 +64,13 @@ fn execute(args: &Args, pod: String) {
         "hello",
     ];
 
-    dump_command(&args);
-    let err = Command::new(KUBECTL).args(args).exec();
+    dump_command(&kubectl_args);
+    let err = Command::new(KUBECTL).args(kubectl_args).exec();
     panic!("Failed to exec: {}", err);
 }
 
-fn dump_command(args: &Vec<&str>) {
-    println!("$ {} {}", KUBECTL, (*args).join(" "));
+fn dump_command(kubectl_args: &Vec<&str>) {
+    println!("$ {} {}", KUBECTL, (*kubectl_args).join(" "));
 }
 
 fn unquote(quoted: String) -> String {
