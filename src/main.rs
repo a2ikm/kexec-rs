@@ -9,6 +9,8 @@ const KUBECTL: &str = "kubectl";
 #[clap(author, version, about, long_about = None)]
 struct Args {
     app: String,
+
+    commands: Vec<String>,
 }
 
 fn main() {
@@ -52,17 +54,13 @@ fn get_pod(args: &Args) -> Option<String> {
 
 fn execute(args: &Args, pod: String) {
     // TODO: Handle namespace
-    // TODO: Handle given command
-    let kubectl_args = vec![
-        "exec",
-        &pod,
-        "-it",
-        "--container",
-        &args.app,
-        "--",
-        "echo",
-        "hello",
-    ];
+    let mut kubectl_args = vec!["exec", &pod, "-it", "--container", &args.app, "--"];
+    let mut commands = args
+        .commands
+        .iter()
+        .map(|x| -> &str { x.as_str() })
+        .collect::<Vec<_>>();
+    kubectl_args.append(&mut commands);
 
     dump_command(&kubectl_args);
     let err = Command::new(KUBECTL).args(kubectl_args).exec();
