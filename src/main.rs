@@ -11,6 +11,9 @@ struct Args {
     app: String,
 
     commands: Vec<String>,
+
+    #[clap(short, long)]
+    namespace: Option<String>,
 }
 
 fn main() {
@@ -26,7 +29,7 @@ fn main() {
 
 fn get_pod(args: &Args) -> Option<String> {
     let app_selector = format!("app={}", args.app);
-    let kubectl_args = vec![
+    let mut kubectl_args = vec![
         "get",
         "pods",
         "-o",
@@ -34,6 +37,10 @@ fn get_pod(args: &Args) -> Option<String> {
         "-l",
         &app_selector,
     ];
+    if let Some(namespace) = &args.namespace {
+        let mut namespace_args = vec!["-n", namespace];
+        kubectl_args.append(&mut namespace_args);
+    }
 
     dump_command(&kubectl_args);
     let result = Command::new(KUBECTL)
@@ -53,8 +60,13 @@ fn get_pod(args: &Args) -> Option<String> {
 }
 
 fn execute(args: &Args, pod: String) {
-    // TODO: Handle namespace
-    let mut kubectl_args = vec!["exec", &pod, "-it", "--container", &args.app, "--"];
+    let mut kubectl_args = vec!["exec", &pod, "-it", "--container", &args.app];
+    if let Some(namespace) = &args.namespace {
+        let mut namespace_args = vec!["-n", namespace];
+        kubectl_args.append(&mut namespace_args);
+    }
+    kubectl_args.push("--");
+
     let mut commands = args
         .commands
         .iter()
