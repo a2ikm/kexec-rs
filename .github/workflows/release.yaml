@@ -46,7 +46,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           draft: false
-          prerelease: ${{ contains(github.ref, '.pre') }}
+          prerelease: ${{ contains(github.ref, '-pre') }}
       - run: |
           echo '${{ steps.create-release.outputs.upload_url }}' > release_upload_url.txt
       - uses: actions/upload-artifact@v1
